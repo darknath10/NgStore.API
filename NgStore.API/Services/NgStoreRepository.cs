@@ -14,7 +14,10 @@ namespace NgStore.API.Services
         Customer getCustomer(int customerId);
         IEnumerable<Order> getCustomerOrders(int customerId);
         Order getOrder(int orderId);
+        void addNewOrder(Order order);
         IEnumerable<OrderItem> getOrderItems(int orderId);
+        IEnumerable<Product> getProducts();
+        bool Save();
     }
 
     public class NgStoreRepository : INgStoreRepository
@@ -28,27 +31,42 @@ namespace NgStore.API.Services
 
         public IEnumerable<Customer> getCustomers()
         {
-            return _context.Customer.ToList();
+            return _context.Customers.ToList();
         }
 
         public Customer getCustomer(int customerId)
         {
-            return _context.Customer.Where(c => c.Id == customerId).FirstOrDefault();
+            return _context.Customers.Where(c => c.Id == customerId).FirstOrDefault();
         }
 
         public IEnumerable<Order> getCustomerOrders(int customerId)
         {
-            return _context.Order.Where(o => o.CustomerId == customerId).ToList();
+            return _context.Orders.Where(o => o.CustomerId == customerId).ToList();
         }        
 
         public Order getOrder(int orderId)
         {
-            return _context.Order.Where(o => o.Id == orderId).FirstOrDefault();
+            return _context.Orders.Where(o => o.Id == orderId).FirstOrDefault();
+        }
+
+        public void addNewOrder(Order order)
+        {
+            _context.Orders.Add(order);
         }
 
         public IEnumerable<OrderItem> getOrderItems(int orderId)
         {
-            return _context.OrderItem.Include(oi => oi.Product).Where(oi => oi.OrderId == orderId).ToList();
+            return _context.OrderItems.Include(oi => oi.Product).Where(oi => oi.OrderId == orderId).ToList();
+        }
+
+        public IEnumerable<Product> getProducts()
+        {
+            return _context.Products.ToList();
+        }
+
+        public bool Save()
+        {
+            return (_context.SaveChanges() >= 0);
         }
     }
 }

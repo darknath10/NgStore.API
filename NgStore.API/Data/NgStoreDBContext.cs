@@ -2,23 +2,24 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using NgStore.API.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace NgStore.API.Data
 {
-    public partial class NgStoreDBContext : DbContext
+    public partial class NgStoreDBContext : IdentityDbContext<User>
     {
         public NgStoreDBContext(DbContextOptions<NgStoreDBContext> options) : base(options)
         {
-
+            Database.Migrate();
         }
 
-        public virtual DbSet<Customer> Customer { get; set; }
-        public virtual DbSet<Order> Order { get; set; }
-        public virtual DbSet<OrderItem> OrderItem { get; set; }
-        public virtual DbSet<Product> Product { get; set; }
-        public virtual DbSet<Supplier> Supplier { get; set; }
+        public DbSet<Customer> Customers { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<Supplier> Suppliers { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        /*protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Customer>(entity =>
             {
@@ -143,6 +144,6 @@ namespace NgStore.API.Data
 
                 entity.Property(e => e.Phone).HasMaxLength(30);
             });
-        }
+        }*/
     }
 }

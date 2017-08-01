@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NgStore.API.Entities
 {
@@ -7,17 +9,25 @@ namespace NgStore.API.Entities
     {
         public Product()
         {
-            OrderItem = new HashSet<OrderItem>();
+            OrderItems = new HashSet<OrderItem>();
         }
 
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
+
         public string ProductName { get; set; }
+
+        [ForeignKey("supplier")]
         public int SupplierId { get; set; }
+
         public decimal? UnitPrice { get; set; }
+
+        [MaxLength(30)]
         public string Package { get; set; }
+
         public bool IsDiscontinued { get; set; }
 
-        public virtual ICollection<OrderItem> OrderItem { get; set; }
+        public virtual ICollection<OrderItem> OrderItems { get; set; }
         public virtual Supplier Supplier { get; set; }
     }
 }

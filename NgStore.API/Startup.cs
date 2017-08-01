@@ -14,6 +14,9 @@ using NgStore.API.Services;
 using AutoMapper;
 using NgStore.API.Entities;
 using NgStore.API.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace NgStore.API
 {
@@ -47,15 +50,25 @@ namespace NgStore.API
                 });
             });
 
+            services.AddAuthorization(cfg =>
+            {
+                cfg.AddPolicy("NgStoreWorkers", p => p.RequireClaim("NgStoreWorker", "true"));
+            });
+
             services.AddMvc();
 
             services.AddDbContext<NgStoreDBContext>(opt => opt.UseSqlServer(_config.GetConnectionString("NgStore")));
 
             services.AddScoped<INgStoreRepository, NgStoreRepository>();
+
+            services.AddIdentity<User, IdentityRole>()
+                    .AddEntityFrameworkStores<NgStoreDBContext>();
+
+            services.AddTransient<UserSeeder>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, UserSeeder seeder)
         {
             loggerFactory.AddConsole();
 
@@ -70,9 +83,28 @@ namespace NgStore.API
                 cfg.CreateMap<Order, OrderDto>();
                 cfg.CreateMap<OrderItem, OrderItemDto>();
                 cfg.CreateMap<Product, ProductDto>();
+                cfg.CreateMap<OrderItemPostDto, OrderItem>();
+            });
+
+            app.UseIdentity();
+
+            app.UseJwtBearerAuthentication(new JwtBearerOptions()
+            {
+                AutomaticAuthenticate = true,
+                AutomaticChallenge = true,
+                TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidIssuer = _config["Tokens:Issuer"],
+                    ValidAudience = _config["Tokens:Audience"],
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Tokens:Key"])),
+                    ValidateLifetime = true
+                }
             });
 
             app.UseMvc();
+
+            seeder.Seed().Wait();
         }
     }
 }
