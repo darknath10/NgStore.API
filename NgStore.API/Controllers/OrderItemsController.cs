@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using NgStore.API.Models;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace NgStore.API.Controllers
 {
-    [Route("api/orders/{orderId}/items"), EnableCors("AllowNgStore.Client")]
+    [Route("api/orders/{orderId}/items"), EnableCors("AllowNgStore.Client"), Authorize]
     public class OrderItemsController : Controller
     {
         private INgStoreRepository _repo;
